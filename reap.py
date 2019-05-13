@@ -23,23 +23,24 @@ def preprocess(subjects_file):
 
 
 def segment2(timelines):
-	sellPoints_info = []
-	ocr_temp_result = {}
+	segments = []
+	subject2seconds = {}
 	for t, subject in timelines:
-		if subject in ocr_temp_result.keys():
-			ocr_temp_result[subject].append(t)
+		if subject in subject2seconds.keys():
+			subject2seconds[subject].append(t)
 		else:
-			ocr_temp_result[subject] = [t]
-	unpredict = ocr_temp_result.pop('Unpredict')
-	print(ocr_temp_result)
+			subject2seconds[subject] = [t]
 
-	for ret_key, ret_values in ocr_temp_result.items():
+	if 'Unpredict' in subject2seconds:
+		unpredict = subject2seconds.pop('Unpredict')
+
+	for subject, seconds in subject2seconds.items():
 	    i = 0
 	    maxstemp = 0
 	    acceptable_interval_num = 10
-	    while i < (len(ret_values) - 2):
-	        start_time_point = int(ret_values[i])
-	        end_time_point = int(ret_values[i + 1])
+	    while i < (len(seconds) - 2):
+	        start_time_point = int(seconds[i])
+	        end_time_point = int(seconds[i + 1])
 	        if end_time_point - start_time_point <= acceptable_interval_num:
 	            maxstemp += end_time_point - start_time_point
 	            i += 1
@@ -47,34 +48,32 @@ def segment2(timelines):
 	        else:
 	            if maxstemp >= 5:
 	                sellpoint = {}
-	                sellpoint['ret_key'] = ret_key
-	                sellpoint['start_msec'] = (int(start_time_point) - maxstemp)
-	                sellpoint['end_msec'] = int(start_time_point)
-	                sellPoints_info.append(sellpoint)
+	                sellpoint['subject'] = subject
+	                sellpoint['start_sec'] = (int(start_time_point) - maxstemp)
+	                sellpoint['end_sec'] = int(start_time_point)
+	                segments.append(sellpoint)
 	            i += 1
 	            maxstemp = 0
-	print(sellPoints_info)
-	return sellPoints_info
+	return segments
 
 def process(subjects_file, video_file, output_path, keypoints_file):
 	seconds_list, setences_list, subjects_list = preprocess(subjects_file)
 	# segments = segment(zip(seconds_list, subjects_list, setences_list))
 	segments = segment2(zip(seconds_list, subjects_list))
-	print(segments)
 	ffmpeg_cmd_t = 'ffmpeg -ss %s -t %s -i %s -vcodec copy -acodec copy %s'
 	for seg in segments:
-		i = seg['start_msec']
-		if i - 10 < 0:
+		i = seg['start_sec']
+		if i - 3 < 0:
 		    i = 0
 		else:
-		    i = i - 10
+		    i = i - 3
 		m, s = divmod(i-2, 60)
 		h, m = divmod(m, 60)
 		str_start = "{:0>2}:{:0>2}:{:0>2}".format(h, m, s)
 		m, s = divmod(30, 60)
 		h, m = divmod(m, 60)
 		str_during = "{:02d}:{:02d}:{:02d}".format(h, m, s)
-		outfilename = output_path + '/' + seg['ret_key'] + "_" + str(i) + '.mp4'
+		outfilename = output_path + '/' + seg['subject'] + "_" + str(i) + '.mp4'
 		exec_cmd = ffmpeg_cmd_t % (str_start, str_during, video_file, outfilename)
 		print(exec_cmd)
 		os.system(exec_cmd)

@@ -8,6 +8,27 @@ jieba_stopwords_path = './jieba/stopwords_cn.txt'
 jieba_userdict_path = './jieba/userdict.txt'
 naive_bayes_model_path = './output'
 
+
+""" 你的 APPID AK SK """
+# APP_ID = '14535492'
+# API_KEY = 'XMnvaz6EH6Hk7MpbRAH3OzB2'
+# SECRET_KEY = 'ogSe8Ox5wGNSwYioF0WkV8byTxnlnbcQ'
+
+
+APP_ID = '15171726'
+API_KEY = '114CdIoq27VFspbYDGz4Hs0j'
+SECRET_KEY = 'yenKoxKZRn1RCRYCF7I2Cf2nBG9MIWLd '
+
+# APP_ID = '15172140'
+# API_KEY = 'HUYhwz1BWLwANMYcgGIfKBoT'
+# SECRET_KEY = 'lin33LMrgouo8H7pH19DmisBfk8vKWdT'
+
+
+# APP_ID = '15184946'
+# API_KEY = 'iR5dGcA9xcPgZc9XbN7n4fm5'
+# SECRET_KEY = 'jbp9KjHCajmyGSjkmnHZIXG2hQMvFIv8'
+
+
 ### 外观......
 appearance_words = {
     ## 外观

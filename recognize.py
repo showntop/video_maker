@@ -7,38 +7,32 @@ from aip import AipOcr
 
 from whitelist import whitelist
 
-""" 你的 APPID AK SK """
-# APP_ID = '14535492'
-# API_KEY = 'XMnvaz6EH6Hk7MpbRAH3OzB2'
-# SECRET_KEY = 'ogSe8Ox5wGNSwYioF0WkV8byTxnlnbcQ'
-
-
-APP_ID = '15171726'
-API_KEY = '114CdIoq27VFspbYDGz4Hs0j'
-SECRET_KEY = 'yenKoxKZRn1RCRYCF7I2Cf2nBG9MIWLd '
-
-# APP_ID = '15172140'
-# API_KEY = 'HUYhwz1BWLwANMYcgGIfKBoT'
-# SECRET_KEY = 'lin33LMrgouo8H7pH19DmisBfk8vKWdT'
-
-
-# APP_ID = '15184946'
-# API_KEY = 'iR5dGcA9xcPgZc9XbN7n4fm5'
-# SECRET_KEY = 'jbp9KjHCajmyGSjkmnHZIXG2hQMvFIv8'
+def for_test_ocr(input_file):
+    vid = input_file.split('/')[3].split('.')[0]
+    file = './data/captions.bak/%s/%s_baidu_ocr_result.txt' % (vid, vid)
+    
+    x1 = []
+    x2 = []
+    with open(file, 'r') as fp:
+        lines = fp.readlines()
+    for line in lines:
+        arr = line.split("\t")
+        x1.append(int(arr[0]))
+        x2.append((arr[1]).strip())
+    return x1, x2
 
 def read_image(filename):
     with open(filename, 'rb') as fp:
         return fp.read()
 
 def ocr(input_file):
-    return 'oooo'
     """
     调用百度ocr
     :param input_file: 
     :param outpath: 
     :return: 
     """
-    client = AipOcr(APP_ID, API_KEY, SECRET_KEY)
+    client = AipOcr(config.APP_ID, config.API_KEY, config.SECRET_KEY)
     """ 调用通用文字识别（高精度版） """
     image = read_image(input_file)
     client.basicGeneral(image)
@@ -58,17 +52,15 @@ def ocr(input_file):
     words = [ '' if re.match(u"[\u4e00-\u9fa5]+", words_result[i]["words"]) is None else words_result[i]["words"] for i in range(len(words_result))]
     return ''.join(words)
 
-def save(save_path, contents):
-    if not os.path.exists(save_path):
-        os.mkdir(save_path)
-    with open(save_path + '/' + 'captions.txt', 'w', encoding='UTF-8') as outfile:
+def save(caption_file, contents):
+    with open(caption_file, 'w', encoding='UTF-8') as outfile:
         for (t, s) in contents:
             outfile.write(str(t) + '\t' + ''.join(s) + '\n')
-    return save_path + '/' + 'captions.txt'
+    return caption_file
 
 def process(frames_path, output_path):
     if os.path.exists(output_path):
-        return output_path + '/' + 'captions.txt'
+        return output_path
     seconds = []
     sentences = []
     for image_file in os.listdir(frames_path):
@@ -79,19 +71,23 @@ def process(frames_path, output_path):
         seconds.append(int(image_file.split(".")[0]))
         sentences.append(sentence)
 
+    seconds, sentences = for_test_ocr(output_path)
+
     contents = sorted(zip(seconds, sentences), key=lambda x: x[0])
     return save(output_path, contents)
 
 def main():
-    data_path = './data'
-    frames_path = data_path+'/frames/'
-    output_path = data_path+'/output/'
+    frames_path = './data/frames/'
+    output_path = './data/output/'
     if not os.path.exists(output_path):
         os.mkdir(output_path)
     for vid in os.listdir(frames_path):
-        if vid not in whitelist('./data/whitelist.txt'):
-            continue
-        process(frames_path + vid, output_path)
+        # if vid not in whitelist('./data/whitelist.txt'):
+        #     continue
+        if not os.path.exists(os.path.join(output_path, vid)):
+            os.mkdir(os.path.join(output_path, vid))
+        process(frames_path + vid, os.path.join(output_path, vid, 'captions.txt'))
+        print(os.path.join(output_path, vid, 'captions.txt'))
 
 if __name__ == '__main__':
     main()

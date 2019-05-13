@@ -8,6 +8,8 @@ from whitelist import whitelist
 def extract_frames(video_file, output_path, n=1):
     if not os.path.exists(output_path):
         os.mkdir(output_path)
+    else:
+        return output_path
     if not output_path.endswith('/'):
         output_path = output_path + '/'
 
