@@ -4,6 +4,7 @@ import os
 import re
 import jieba
 from aip import AipOcr
+import config
 
 from whitelist import whitelist
 
@@ -66,12 +67,16 @@ def process(frames_path, output_path):
     for image_file in os.listdir(frames_path):
         try:
             sentence = ocr(frames_path + '/' + image_file)
+            seconds.append(int(image_file.split(".")[0]))
+            sentences.append(sentence)
         except Exception as e:
             print(image_file, e)
-        seconds.append(int(image_file.split(".")[0]))
-        sentences.append(sentence)
+            seconds.append(int(image_file.split(".")[0]))
+            sentences.append('')
+        finally:
+            pass
 
-    seconds, sentences = for_test_ocr(output_path)
+    # seconds, sentences = for_test_ocr(output_path)
 
     contents = sorted(zip(seconds, sentences), key=lambda x: x[0])
     return save(output_path, contents)

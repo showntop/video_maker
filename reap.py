@@ -44,39 +44,97 @@ def segment2(timelines):
 	        if end_time_point - start_time_point <= acceptable_interval_num:
 	            maxstemp += end_time_point - start_time_point
 	            i += 1
-	            print(maxstemp)
 	        else:
 	            if maxstemp >= 5:
-	                sellpoint = {}
-	                sellpoint['subject'] = subject
-	                sellpoint['start_sec'] = (int(start_time_point) - maxstemp)
-	                sellpoint['end_sec'] = int(start_time_point)
-	                segments.append(sellpoint)
+	                segment = {}
+	                segment['subject'] = subject
+	                segment['start'] = (int(start_time_point) - maxstemp)
+	                segment['end'] = int(start_time_point)
+	                segments.append(segment)
 	            i += 1
 	            maxstemp = 0
 	return segments
 
+def save(short_videos, vid):
+	import pymysql
+	 
+	# 打开数据库连接
+	db = pymysql.connect("localhost", "root", "", "short_videos" )
+	 
+	# 使用cursor()方法获取操作游标 
+	cursor = db.cursor()
+	 
+	# SQL 插入语句
+	sql = "INSERT INTO videos(url, \
+	         subject, content, source_video_id) \
+	         VALUES ('%s', '%s', '%s', '%s') ON DUPLICATE KEY UPDATE \
+	         subject=VALUES(subject), content=VALUES(content)		\
+	         "
+	for v in short_videos:
+		try:
+		   # 执行sql语句
+		   print(sql %(v['url'], v['subject'], v['content'], v['source']))
+		   cursor.execute(sql %(v['url'], v['subject'], v['content'], v['source']))
+		   # 提交到数据库执行
+		   db.commit()
+		except Error as e:
+			print(e)
+			# 如果发生错误则回滚
+			db.rollback()
+	# 关闭数据库连接
+	db.close()
+
+
 def process(subjects_file, video_file, output_path, keypoints_file):
+	def merge_text(k1, k2, dict):
+		texts = []
+		for x in range(k1, k2):
+			if x not in dict.keys():
+				continue
+			sss = dict[x].replace("汽车之家", "").replace("之家", "").replace("汽车之", "").replace("看车买车用车", "").replace("家看车", "").replace("家买车用车", "").strip()
+			sss = sss.split(" ")[0]
+			if x-1 not in dict.keys():
+				continue
+			sss0 = dict[x-1].replace("汽车之家", "").replace("之家", "").replace("汽车之", "").replace("看车买车用车", "").replace("家看车", "").replace("家买车用车", "").strip()
+			sss0 = sss0.split(" ")[0]
+			if tf_similarity(sss, sss0) > 0.8:
+				# print(sss0, sss)
+				continue
+			texts.append(sss)
+		return texts
+
 	seconds_list, setences_list, subjects_list = preprocess(subjects_file)
 	# segments = segment(zip(seconds_list, subjects_list, setences_list))
 	segments = segment2(zip(seconds_list, subjects_list))
-	ffmpeg_cmd_t = 'ffmpeg -ss %s -t %s -i %s -vcodec copy -acodec copy %s'
+	print(segments)
+
 	for seg in segments:
-		i = seg['start_sec']
-		if i - 3 < 0:
+		i = seg['start']
+		if i - 2 < 0:
 		    i = 0
 		else:
-		    i = i - 3
-		m, s = divmod(i-2, 60)
+		    i = i - 2
+		seg['source'] = video_file
+		seg['start'] = i
+		seg['duration'] = 30
+		seg['content'] = ''.join(merge_text(i, i+30, dict(zip(seconds_list, setences_list))))
+		seg['url'] = output_path + '/' + seg['subject'] + "_" + str(seg['start']) + '.mp4'
+
+	print(segments)
+
+	ffmpeg_cmd_t = 'ffmpeg -y -ss %s -t %s -i %s -vcodec copy -acodec copy %s'
+	for seg in segments:
+		m, s = divmod(seg['start'], 60) 
 		h, m = divmod(m, 60)
-		str_start = "{:0>2}:{:0>2}:{:0>2}".format(h, m, s)
-		m, s = divmod(30, 60)
+		start = "{:0>2}:{:0>2}:{:0>2}".format(h, m, s)
+		m, s = divmod(seg['duration'], 60)
 		h, m = divmod(m, 60)
-		str_during = "{:02d}:{:02d}:{:02d}".format(h, m, s)
-		outfilename = output_path + '/' + seg['subject'] + "_" + str(i) + '.mp4'
-		exec_cmd = ffmpeg_cmd_t % (str_start, str_during, video_file, outfilename)
-		print(exec_cmd)
+		duration = "{:02d}:{:02d}:{:02d}".format(h, m, s)
+		out_video_file = seg['url']
+		exec_cmd = ffmpeg_cmd_t % (start, duration, video_file, out_video_file)
+		# print(exec_cmd)
 		os.system(exec_cmd)
+	save(segments, video_file)
 
 def main():
 	init("./jieba/stopwords_cn.txt", "./jieba/userdict.txt")

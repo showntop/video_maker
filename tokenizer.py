@@ -14,5 +14,5 @@ def init(userdict_file, stop_words_file):
 def tokenize2(text):
 	text = text.replace("看车买车", "").replace("看车", "").replace("买车", "").replace("用车", "")
 	tokens = analyse.extract_tags(text, topK=10000, allowPOS=('n', 'a', 'v'))
-	print(text, list(tokens))
+	# print(text, list(tokens))
 	return list(tokens)
