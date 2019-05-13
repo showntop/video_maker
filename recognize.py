@@ -58,31 +58,29 @@ def ocr(input_file):
     words = [ '' if re.match(u"[\u4e00-\u9fa5]+", words_result[i]["words"]) is None else words_result[i]["words"] for i in range(len(words_result))]
     return ''.join(words)
 
-def process(frames_path, vid, output_path):
-    if os.path.exists(output_path + '/' + vid):
-        return
+def save(save_path, contents):
+    if not os.path.exists(save_path):
+        os.mkdir(save_path)
+    with open(save_path + '/' + 'captions.txt', 'w', encoding='UTF-8') as outfile:
+        for (t, s) in contents:
+            outfile.write(str(t) + '\t' + ''.join(s) + '\n')
+    return save_path + '/' + 'captions.txt'
+
+def process(frames_path, output_path):
+    if os.path.exists(output_path):
+        return output_path + '/' + 'captions.txt'
     seconds = []
     sentences = []
-    for image_file in os.listdir(frames_path + vid):
+    for image_file in os.listdir(frames_path):
         try:
-            sentence = ocr(frames_path + vid + '/' + image_file)
+            sentence = ocr(frames_path + '/' + image_file)
         except Exception as e:
-            print(vid, image_file, e)
+            print(image_file, e)
         seconds.append(int(image_file.split(".")[0]))
         sentences.append(sentence)
 
     contents = sorted(zip(seconds, sentences), key=lambda x: x[0])
-    save(output_path, vid, contents)
-
-
-
-def save(outpath, vid, contents):
-    save_path = os.path.join(outpath, vid)
-    if not os.path.exists(save_path):
-        os.mkdir(save_path)
-    with open(save_path + '/' + vid + '.captions', 'w', encoding='UTF-8') as outfile:
-        for (t, s) in contents:
-            outfile.write(str(t) + '\t' + ''.join(s) + '\n')
+    return save(output_path, contents)
 
 def main():
     data_path = './data'
@@ -93,7 +91,7 @@ def main():
     for vid in os.listdir(frames_path):
         if vid not in whitelist('./data/whitelist.txt'):
             continue
-        process(frames_path, vid, output_path)
+        process(frames_path + vid, output_path)
 
 if __name__ == '__main__':
     main()

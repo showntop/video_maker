@@ -1,5 +1,12 @@
-VIDEOS_PATH = './data/captions'
-MODEL_PATH = './output'
+VIDEO_LIST = './data/video_list.txt'
+VIDEO_PATH = './data/videos'
+FRAME_PATH = './data/frames'
+
+OUTPUT_PATH = './data/output'
+
+jieba_stopwords_path = './jieba/stopwords_cn.txt'
+jieba_userdict_path = './jieba/userdict.txt'
+naive_bayes_model_path = './output'
 
 ### 外观......
 appearance_words = {

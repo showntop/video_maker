@@ -5,8 +5,8 @@ import config
 from utils.text_similarity import tf_similarity
 from classifier.build import build
 from tokenizer import init
-clfins = build('../output')
-init("../jieba/stopwords_cn.txt", "../jieba/userdict.txt")
+clfins = build('./output')
+init("./jieba/stopwords_cn.txt", "./jieba/userdict.txt")
 
 class Keypoint(object):
 	"""docstring for Keypoint"""
@@ -110,7 +110,7 @@ def predict():
 	pass
 
 def main():
-	primary_classify_file = open("../data/captions/061C69650C43A779/classify_result.txt", 
+	primary_classify_file = open("../data/output/061C69650C43A779.mp4/061C69650C43A779.mp4.subjects", 
 		mode='r', encoding='utf-8')
 	
 	seconds_list = []

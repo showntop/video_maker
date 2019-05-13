@@ -6,6 +6,11 @@ from whitelist import whitelist
 
 # 每N秒提取一帧
 def extract_frames(video_file, output_path, n=1):
+    if not os.path.exists(output_path):
+        os.mkdir(output_path)
+    if not output_path.endswith('/'):
+        output_path = output_path + '/'
+
     ffmpeg_cmd = "ffmpeg  -i  " + video_file + " -r " + str(n) + " -f image2 " + output_path + "%d.jpg"
     os.system(ffmpeg_cmd)
 
@@ -17,6 +22,7 @@ def extract_frames(video_file, output_path, n=1):
         rect = [0, int(height / 3) * 2, int(width), int(height / 3)]
         image_ROI = image[rect[1]:  rect[1] + rect[3], rect[0]: rect[0] + rect[2]]
         cv2.imwrite(image_file_path, image_ROI)
+    return output_path
 
 def main():
     data_path = './data'

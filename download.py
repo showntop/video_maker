@@ -7,6 +7,8 @@ import csv
 import random
 import utils
 
+import config
+
 def read_video_list(filename):
     '''
     读取csv文件第一列为video_id list
@@ -15,8 +17,7 @@ def read_video_list(filename):
     '''
     with open(filename, 'r') as file:
         lines = file.readlines()
-    return lines
-
+    return [ line.strip() for line in lines ]
 
 def download_and_save(download_url, save_path):
     '''
@@ -67,19 +68,22 @@ def get_video_url(video_id):
     return video_url
 
 def download_videos(video_list):
-
+    video_files = []
     for vid in video_list:
         video_url = get_video_url(vid)
         if video_url is None:
+            print(vid, ' cannot get download url')
             continue
-        filename_path = './data/videos/' + vid + '/' + vid '.mp4'
+        filename_path = os.path.join(config.VIDEO_PATH, vid + '.mp4')
+        #config.VIDEO_PAHT + vid + '/' + vid '.mp4'
         if os.path.exists(filename_path) is False:
             download_and_save(video_url, filename_path)
         else:
             pass
+        video_files.append(filename_path)
         print('download video %s，file size : %d' % (vid, os.path.getsize(filename_path)))
-    # print(video_url_list)
+    return video_files
 
 if __name__ == '__main__':
-    video_list = read_video_list('./data/video_list.txt')
+    video_list = read_video_list(config.VIDEO_LIST)
     download_videos(video_list)
