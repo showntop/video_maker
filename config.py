@@ -6,7 +6,8 @@ OUTPUT_PATH = './data/output'
 
 jieba_stopwords_path = './jieba/stopwords_cn.txt'
 jieba_userdict_path = './jieba/userdict.txt'
-naive_bayes_model_path = './output'
+naive_bayes_model_path = './models'
+train_data_path = './data/train'
 
 
 """ 你的 APPID AK SK """

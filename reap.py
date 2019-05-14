@@ -4,7 +4,7 @@ from classifier.build import build
 from tokenizer import init
 from utils.text_similarity import tf_similarity
 from summary.extract import extract_summary
-from keypoint.extract import segment
+# from keypoint.extract import segment
 
 def preprocess(subjects_file):
 	seconds_list = []
@@ -33,26 +33,72 @@ def segment2(timelines):
 
 	if 'Unpredict' in subject2seconds:
 		unpredict = subject2seconds.pop('Unpredict')
-
+	print(subject2seconds)
 	for subject, seconds in subject2seconds.items():
-	    i = 0
-	    maxstemp = 0
-	    acceptable_interval_num = 10
-	    while i < (len(seconds) - 2):
-	        start_time_point = int(seconds[i])
-	        end_time_point = int(seconds[i + 1])
-	        if end_time_point - start_time_point <= acceptable_interval_num:
-	            maxstemp += end_time_point - start_time_point
-	            i += 1
-	        else:
-	            if maxstemp >= 5:
-	                segment = {}
-	                segment['subject'] = subject
-	                segment['start'] = (int(start_time_point) - maxstemp)
-	                segment['end'] = int(start_time_point)
-	                segments.append(segment)
-	            i += 1
-	            maxstemp = 0
+		new_seconds = []
+		mid = len(seconds) // 2
+		# new_seconds.append(seconds[mid])
+		for x in range(1, mid):
+			print(x, seconds[mid-x], seconds[mid-x-1])
+			if seconds[mid-x] - seconds[mid-x-1] <= 20:
+				new_seconds.append(seconds[mid-x])
+			else:
+				new_seconds.append(seconds[mid-x])
+				break
+		for x in range(mid, len(seconds)):
+			print(x, seconds[x], seconds[x-1])
+			if seconds[x] - seconds[x-1] <= 20:
+				new_seconds.append(seconds[x])
+			else:
+				# new_seconds.append(seconds[x])
+				break
+			# if seconds[x + mid] - seconds[x +mid-1] >= 10:
+				# new_seconds.append(seconds[x +mid-1])
+		if len(new_seconds) <= 0:
+			continue
+		new_seconds.sort()
+		subject2seconds[subject] = new_seconds
+	print(subject2seconds)
+	for subject, seconds in subject2seconds.items():
+		segment = {}
+		segment['subject'] = subject
+		segment['start'] = int(seconds[0])
+		segment['end'] = int(seconds[-1])
+		segments.append(segment)
+
+
+	# for subject, seconds in subject2seconds.items():
+	# 	new_seconds = []
+	# 	for x in range(1, len(seconds)):
+	# 		step = seconds[x] - seconds[x-1]
+	# 		if step <= 10:
+	# 			new_seconds.append(seconds[x-1])
+	# 	# print(new_seconds)
+	# 	subject2seconds[subject] = new_seconds
+
+		# segment = {}
+		# segment['subject'] = subject
+		# segment['start'] = int(start_second)
+		# segment['end'] = int(end_second)
+		# segments.append(segment)
+	    # i = 0
+	    # maxstemp = 0
+	    # acceptable_interval_num = 10
+	    # while i < (len(seconds) - 2):
+	    #     start_time_point = int(seconds[i])
+	    #     end_time_point = int(seconds[i + 1])
+	    #     if end_time_point - start_time_point <= acceptable_interval_num:
+	    #         maxstemp += end_time_point - start_time_point
+	    #         i += 1
+	    #     else:
+	    #         if maxstemp >= 5:
+	    #             segment = {}
+	    #             segment['subject'] = subject
+	    #             segment['start'] = (int(start_time_point) - maxstemp)
+	    #             segment['end'] = int(start_time_point)
+	    #             segments.append(segment)
+	    #         i += 1
+	    #         maxstemp = 0
 	return segments
 
 def save(short_videos, vid):

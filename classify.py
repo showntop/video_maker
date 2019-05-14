@@ -46,7 +46,7 @@ def process(caption_file, output_file, clfins=None):
 
 def main():
 	init("./jieba/stopwords_cn.txt", "./jieba/userdict.txt")
-	clfins = build('./output')
+	clfins = build(config.naive_bayes_model_path)
 	### list all videos
 	input_path = './data/output'
 	output_path = './data/output'

@@ -125,6 +125,6 @@ def build(model_path):
 
 if __name__ == '__main__':
 	init("../jieba/stopwords_cn.txt", "../jieba/userdict.txt")
-	clfins = build("../output")
+	clfins = build("../models")
 	test(clfins)
 	# test_performence(clfins)
