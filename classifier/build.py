@@ -61,26 +61,6 @@ class Classifier(object):
 
 		return final_list
 
-	### 手动微调
-	def predict_internal(self, text):
-		match_num = 0
-		for word in config.appearance_words:
-			try:
-				pos = text.index(word)
-				# print(pos)
-			except Exception as e:
-				# print(e)
-				pass
-			else:
-				match_num += len(word)
-			finally:
-				pass
-		print(text, match_num/len(text))
-
-
-
-
-
 def test(clfins):
 	##### for test
 	docs_new = ['3.0T发动机，推背感强烈，舒适性下降，胎噪明显',
@@ -104,7 +84,7 @@ def test_performence(clfins):
 	for i in range(len(test_data.data)):
 		test_docs.append(test_data.data[i].decode().strip())
 
-	test_predicted = clfins.predict_proba(test_docs, 0.0)
+	test_predicted = clfins.predict_proba(test_docs, 0.6)
 	total = 0
 	right = 0
 	for filename, doc, category, predict in zip(test_data.filenames, test_docs, test_data.target, test_predicted):
@@ -127,4 +107,4 @@ if __name__ == '__main__':
 	init("../jieba/stopwords_cn.txt", "../jieba/userdict.txt")
 	clfins = build("../models")
 	test(clfins)
-	# test_performence(clfins)
+	test_performence(clfins)

@@ -34,6 +34,10 @@ def ocr(input_file):
     :return: 
     """
     client = AipOcr(config.APP_ID, config.API_KEY, config.SECRET_KEY)
+    # client = AipOcr(config.get_appid(iiiiii))
+    # iiiiii += 1
+    # print('APP_ID:', config.get_appid(iiiiii))
+    # return 
     """ 调用通用文字识别（高精度版） """
     image = read_image(input_file)
     client.basicGeneral(image)

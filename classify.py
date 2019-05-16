@@ -24,6 +24,112 @@ def preprocess(file_name):
 
 	return sorted(zip(seconds_list, content_list), key=lambda x: x[0])
 
+### 手动微调
+def predict_internal(text):
+	match_num = 0
+	for word in config.appearance_words.keys():
+		try:
+			pos = text.index(word)
+			# print(pos)
+		except Exception as e:
+			# print(e)
+			pass
+		else:
+			match_num += len(word)
+		finally:
+			pass
+	if match_num >=1:
+		print(text, match_num/len(text))
+		return '外观'
+	match_num = 0
+	for word in config.interspace_words.keys():
+		try:
+			pos = text.index(word)
+			# print(pos)
+		except Exception as e:
+			# print(e)
+			pass
+		else:
+			match_num += len(word)
+		finally:
+			pass
+	if match_num >=1:
+		print(text, match_num/len(text))
+		return '空间'
+	match_num = 0
+	for word in config.control_words:
+		try:
+			pos = text.index(word)
+			# print(pos)
+		except Exception as e:
+			# print(e)
+			pass
+		else:
+			match_num += len(word)
+		finally:
+			pass
+	if match_num >=1:
+		print(text, match_num/len(text))
+		return '操控'
+	match_num = 0
+	for word in config.comfortable_words:
+		try:
+			pos = text.index(word)
+			# print(pos)
+		except Exception as e:
+			# print(e)
+			pass
+		else:
+			match_num += len(word)
+		finally:
+			pass
+	if match_num >=1:
+		print(text, match_num/len(text))
+		return '舒适性'
+	for word in config.power_words:
+		try:
+			pos = text.index(word)
+			# print(pos)
+		except Exception as e:
+			# print(e)
+			pass
+		else:
+			match_num += len(word)
+		finally:
+			pass
+	if match_num >=1:
+		print(text, match_num/len(text))
+		return '动力'
+	for word in config.price_words:
+		try:
+			pos = text.index(word)
+			# print(pos)
+		except Exception as e:
+			# print(e)
+			pass
+		else:
+			match_num += len(word)
+		finally:
+			pass
+	if match_num >=1:
+		print(text, match_num/len(text))
+		return '价格'
+	for word in config.fuel_words:
+		try:
+			pos = text.index(word)
+			# print(pos)
+		except Exception as e:
+			# print(e)
+			pass
+		else:
+			match_num += len(word)
+		finally:
+			pass
+	if match_num >=1:
+		print(text, match_num/len(text))
+		return '油耗'
+
+
 def process(caption_file, output_file, clfins=None):
 	if os.path.exists(output_file):
 		return output_file
@@ -39,8 +145,11 @@ def process(caption_file, output_file, clfins=None):
 
 	output = open(output_file, mode='w', encoding='utf-8')
 	for second, content, predicted in zip(seconds_list, docs_list, predicted_list):
-		target_list.append(clfins.target_name(predicted))
-		output.write("%s\t%s\t%s\n" % (second, content, clfins.target_name(predicted)))
+		name = clfins.target_name(predicted)
+		if name == 'Unpredict':
+			name = predict_internal(content)
+		target_list.append(name)
+		output.write("%s\t%s\t%s\n" % (second, content, name))
 	output.close()
 	return output_file
 

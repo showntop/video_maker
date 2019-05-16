@@ -21,6 +21,21 @@ def preprocess(subjects_file):
 	subjects_file.close()
 	return seconds_list, sentences_list, subjects_list
 
+def expand(source_list):
+
+	zzz = [[source_list[0]]]
+	for x in range(1, len(source_list)):
+		if source_list[x] - source_list[x-1] >= 20:
+			zzz.append([source_list[x]])
+		else:
+			zzz[-1].append(source_list[x])
+	print(zzz)
+	rrr = zzz[0]
+	for a in zzz:
+		if len(a) > len(rrr):
+			rrr = a
+	print(rrr)
+	return rrr
 
 def segment2(timelines):
 	segments = []
@@ -33,33 +48,41 @@ def segment2(timelines):
 
 	if 'Unpredict' in subject2seconds:
 		unpredict = subject2seconds.pop('Unpredict')
+
+	if 'None' in subject2seconds:
+		unpredict = subject2seconds.pop('None')
 	print(subject2seconds)
 	for subject, seconds in subject2seconds.items():
-		new_seconds = []
-		mid = len(seconds) // 2
+		# new_seconds = []
+		# mid = len(seconds) // 2
 		# new_seconds.append(seconds[mid])
-		for x in range(1, mid):
-			print(x, seconds[mid-x], seconds[mid-x-1])
-			if seconds[mid-x] - seconds[mid-x-1] <= 20:
-				new_seconds.append(seconds[mid-x])
-			else:
-				new_seconds.append(seconds[mid-x])
-				break
-		for x in range(mid, len(seconds)):
-			print(x, seconds[x], seconds[x-1])
-			if seconds[x] - seconds[x-1] <= 20:
-				new_seconds.append(seconds[x])
-			else:
-				# new_seconds.append(seconds[x])
-				break
-			# if seconds[x + mid] - seconds[x +mid-1] >= 10:
-				# new_seconds.append(seconds[x +mid-1])
+		# for x in range(1, mid):
+		# 	print(x, seconds[mid-x], seconds[mid-x-1])
+		# 	if seconds[mid-x] - seconds[mid-x-1] <= 20:
+		# 		new_seconds.append(seconds[mid-x])
+		# 	else:
+		# 		new_seconds.append(seconds[mid-x])
+		# 		break
+		# for x in range(mid, len(seconds)):
+		# 	print(x, seconds[x], seconds[x-1])
+		# 	if seconds[x] - seconds[x-1] <= 20:
+		# 		new_seconds.append(seconds[x])
+		# 	else:
+		# 		# new_seconds.append(seconds[x])
+		# 		break
+		# 	# if seconds[x + mid] - seconds[x +mid-1] >= 10:
+		# 		# new_seconds.append(seconds[x +mid-1])
+		new_seconds = expand(seconds)
 		if len(new_seconds) <= 0:
 			continue
 		new_seconds.sort()
 		subject2seconds[subject] = new_seconds
 	print(subject2seconds)
 	for subject, seconds in subject2seconds.items():
+		if len(seconds) <= 1:
+			continue
+		if seconds[-1] - seconds[0] < 5:
+			continue
 		segment = {}
 		segment['subject'] = subject
 		segment['start'] = int(seconds[0])
@@ -160,15 +183,17 @@ def process(subjects_file, video_file, output_path, keypoints_file):
 		    i = 0
 		else:
 		    i = i - 2
+		j = seg['end']
+
 		seg['source'] = video_file
 		seg['start'] = i
-		seg['duration'] = 30
-		seg['content'] = ''.join(merge_text(i, i+30, dict(zip(seconds_list, setences_list))))
-		seg['url'] = output_path + '/' + seg['subject'] + "_" + str(seg['start']) + '.mp4'
+		seg['duration'] = j - i
+		seg['content'] = ''.join(merge_text(i, j, dict(zip(seconds_list, setences_list))))
+		seg['url'] = output_path + '/' + seg['subject'] + "_" + str(seg['start']) + "_" + str(seg['duration']) + '.mp4'
 
 	print(segments)
 
-	ffmpeg_cmd_t = 'ffmpeg -y -ss %s -t %s -i %s -vcodec copy -acodec copy %s'
+	ffmpeg_cmd_t = 'ffmpeg -y -loglevel repeat+level+warning -ss %s -t %s -i %s -vcodec copy -acodec copy %s'
 	for seg in segments:
 		m, s = divmod(seg['start'], 60) 
 		h, m = divmod(m, 60)

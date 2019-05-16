@@ -36,6 +36,6 @@ def train(train_path, model_path):
 	print(clf)
 
 if __name__ == '__main__':
-	train('../output', '../data/train')
+	train('../data/train', '../models')
 
 
