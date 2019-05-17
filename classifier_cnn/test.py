@@ -1,7 +1,8 @@
 def test():
     print("Loading test data...")
     start_time = time.time()
-    x_test, y_test = process_file(test_dir, word_to_id, cat_to_id, config.seq_length)
+    x_test, y_test = process_file(
+        test_dir, word_to_id, cat_to_id, config.seq_length)
 
     session = tf.Session()
     session.run(tf.global_variables_initializer())
@@ -26,11 +27,13 @@ def test():
             model.input_x: x_test[start_id:end_id],
             model.keep_prob: 1.0
         }
-        y_pred_cls[start_id:end_id] = session.run(model.y_pred_cls, feed_dict=feed_dict)
+        y_pred_cls[start_id:end_id] = session.run(
+            model.y_pred_cls, feed_dict=feed_dict)
 
     # 评估
     print("Precision, Recall and F1-Score...")
-    print(metrics.classification_report(y_test_cls, y_pred_cls, target_names=categories))
+    print(metrics.classification_report(
+        y_test_cls, y_pred_cls, target_names=categories))
 
     # 混淆矩阵
     print("Confusion Matrix...")

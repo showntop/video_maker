@@ -37,7 +37,7 @@ def get_appid(i):
     ('15171726', '114CdIoq27VFspbYDGz4Hs0j', 'yenKoxKZRn1RCRYCF7I2Cf2nBG9MIWLd'),
     ('15172140', 'HUYhwz1BWLwANMYcgGIfKBoT', 'lin33LMrgouo8H7pH19DmisBfk8vKWdT'),
     ('15184946', 'iR5dGcA9xcPgZc9XbN7n4fm5', 'jbp9KjHCajmyGSjkmnHZIXG2hQMvFIv8'),
-    ][rand.%4]
+    ][i%4]
 
 ### 外观......
 ### 外观......

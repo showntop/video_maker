@@ -1,5 +1,6 @@
 # coding: utf-8
 
+
 class TCNNConfig(object):
     """CNN配置参数"""
 

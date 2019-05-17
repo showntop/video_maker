@@ -3,6 +3,7 @@ import numpy as np
 np.seterr(divide='ignore', invalid='ignore')
 from scipy.linalg import norm
 
+
 def tf_similarity(s1, s2):
     def add_space(s):
         return ' '.join(list(s))

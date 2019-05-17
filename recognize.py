@@ -8,10 +8,11 @@ import config
 
 from whitelist import whitelist
 
+
 def for_test_ocr(input_file):
     vid = input_file.split('/')[3].split('.')[0]
     file = './data/captions.bak/%s/%s_baidu_ocr_result.txt' % (vid, vid)
-    
+
     x1 = []
     x2 = []
     with open(file, 'r') as fp:
@@ -22,9 +23,11 @@ def for_test_ocr(input_file):
         x2.append((arr[1]).strip())
     return x1, x2
 
+
 def read_image(filename):
     with open(filename, 'rb') as fp:
         return fp.read()
+
 
 def ocr(input_file):
     """
@@ -33,11 +36,11 @@ def ocr(input_file):
     :param outpath: 
     :return: 
     """
-    client = AipOcr(config.APP_ID, config.API_KEY, config.SECRET_KEY)
-    # client = AipOcr(config.get_appid(iiiiii))
-    # iiiiii += 1
-    # print('APP_ID:', config.get_appid(iiiiii))
-    # return 
+    # client = AipOcr(config.APP_ID, config.API_KEY, config.SECRET_KEY)
+    xi = input_file.split("/")[-1].split(".")[0]
+    zzz = config.get_appid(int(xi))
+    client = AipOcr(zzz[0], zzz[1], zzz[2])
+
     """ 调用通用文字识别（高精度版） """
     image = read_image(input_file)
     client.basicGeneral(image)
@@ -49,19 +52,22 @@ def ocr(input_file):
 
     """ 带参数调用通用文字识别（高精度版） """
     result = client.basicAccurate(image, options)
-    print('baidu ocr result: ', result)
+    print(input_file, 'result: ', result)
     # if result.get('error_code', 0) != 0:
     #     return []
     words_result = result.get("words_result", [])
-    
-    words = [ '' if re.match(u"[\u4e00-\u9fa5]+", words_result[i]["words"]) is None else words_result[i]["words"] for i in range(len(words_result))]
+
+    words = ['' if re.match(u"[\u4e00-\u9fa5]+", words_result[i]["words"])
+             is None else words_result[i]["words"] for i in range(len(words_result))]
     return ''.join(words)
+
 
 def save(caption_file, contents):
     with open(caption_file, 'w', encoding='UTF-8') as outfile:
         for (t, s) in contents:
             outfile.write(str(t) + '\t' + ''.join(s) + '\n')
     return caption_file
+
 
 def process(frames_path, output_path):
     if os.path.exists(output_path):
@@ -85,6 +91,7 @@ def process(frames_path, output_path):
     contents = sorted(zip(seconds, sentences), key=lambda x: x[0])
     return save(output_path, contents)
 
+
 def main():
     frames_path = './data/frames/'
     output_path = './data/output/'
@@ -100,6 +107,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-

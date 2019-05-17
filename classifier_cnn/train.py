@@ -77,7 +77,8 @@ def train():
     print("Loading training and validation data...")
     # 载入训练集与验证集
     start_time = time.time()
-    x_train, y_train = process_file(train_dir, word2id, cat_to_id, config.seq_length)
+    x_train, y_train = process_file(
+        train_dir, word2id, cat_to_id, config.seq_length)
     x_val, y_val = process_file(val_dir, word2id, cat_to_id, config.seq_length)
     time_dif = get_time_dif(start_time)
     print("Time usage:", time_dif)
@@ -109,7 +110,8 @@ def train():
             if total_batch % config.print_per_batch == 0:
                 # 每多少轮次输出在训练集和验证集上的性能
                 feed_dict[model.keep_prob] = 1.0
-                loss_train, acc_train = session.run([model.loss, model.acc], feed_dict=feed_dict)
+                loss_train, acc_train = session.run(
+                    [model.loss, model.acc], feed_dict=feed_dict)
                 loss_val, acc_val = evaluate(session, x_val, y_val)  # todo
 
                 if acc_val > best_acc_val:
@@ -124,7 +126,8 @@ def train():
                 time_dif = get_time_dif(start_time)
                 msg = 'Iter: {0:>6}, Train Loss: {1:>6.2}, Train Acc: {2:>7.2%},' \
                       + ' Val Loss: {3:>6.2}, Val Acc: {4:>7.2%}, Time: {5} {6}'
-                print(msg.format(total_batch, loss_train, acc_train, loss_val, acc_val, time_dif, improved_str))
+                print(msg.format(total_batch, loss_train, acc_train,
+                                 loss_val, acc_val, time_dif, improved_str))
 
             session.run(model.optim, feed_dict=feed_dict)  # 运行优化
             total_batch += 1
@@ -138,7 +141,7 @@ def train():
             break
 
 if __name__ == '__main__':
-    
+
     print('Configuring CNN model...')
     config = TCNNConfig()
     if not os.path.exists(vocab_dir):  # 如果不存在词汇表，重建
@@ -149,4 +152,3 @@ if __name__ == '__main__':
     model = TextCNN(config)
 
     train()
-    
