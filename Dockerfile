@@ -1,10 +1,12 @@
-FROM thub.autohome.com.cn/ad_system/anaconda3:1.0
+FROM python:3
 MAINTAINER xiaorongtao
 LABEL version="1.0"
 RUN apt-get update
-RUN apt-get install ffmpeg
+RUN apt-get install ffmpeg -y
 WORKDIR /video_maker
 ADD . /video_maker
 RUN cd /video_maker 
-RUN /root/anaconda3/bin/pip install -r requirements.txt
-CMD ["/root/anaconda3/bin/python", "pipline.py"]
+RUN pip install --no-cache-dir -r requirements.txt
+RUN mkdir -p data/output
+RUN mkdir -p data/videos
+CMD ["python", "pipline.py"]
