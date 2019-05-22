@@ -62,6 +62,48 @@ def ocr(input_file):
     return ''.join(words)
 
 
+def ocr_ours(input_file):
+    """
+    调用自研ocr服务
+    :param input_file: 
+    :param outpath: 
+    :return: 
+    """
+    import urllib.parse
+    import requests
+    import base64
+
+    url = 'http://10.27.214.177:8080/ocr'
+    encodedZip = base64.b64encode(read_image(input_file))
+    # print(encodedZip.decode())
+    body = {
+        "imgString": encodedZip.decode(),
+        "billModel": "通用OCR",
+        "textAngle": False,
+        "textLine": False,
+    }
+    resp = requests.post(url, json=body)  # 发送post请求，第一个参数是URL，第二个参数是请求数据
+    # print("resp", resp)
+    result = resp.json()
+    # params = urllib.parse.urlencode(
+    #     {'@imgString': encodedZip, '@billModel': '通用OCR', '@textAngle': False, '@textLine': False})
+    # headers = {"Content-type": "application/x-www-form-urlencoded",
+    # "Accept": "text/plain"}
+    # conn = http.client.HTTPConnection('10.27.214.177', '8080')
+    # conn.request("POST", "/ocr", params, headers)
+    # response = conn.getresponse()
+    # print(response)
+    # result = response.read()
+    print(input_file, 'result: ', result)
+    # data = json.loads(result)
+
+    words_result = result.get("res", [])
+
+    words = ['' if re.match(u"[\u4e00-\u9fa5]+", words_result[i]["text"])
+             is None else words_result[i]["text"] for i in range(len(words_result))]
+    return ''.join(words)
+
+
 def save(caption_file, contents):
     with open(caption_file, 'w', encoding='UTF-8') as outfile:
         for (t, s) in contents:
@@ -76,7 +118,8 @@ def process(frames_path, output_path):
     sentences = []
     for image_file in os.listdir(frames_path):
         try:
-            sentence = ocr(frames_path + '/' + image_file)
+            sentence = ocr_ours(frames_path + '/' + image_file)
+            # sentence = ocr(frames_path + '/' + image_file)
             seconds.append(int(image_file.split(".")[0]))
             sentences.append(sentence)
         except Exception as e:

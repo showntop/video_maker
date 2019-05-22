@@ -65,8 +65,10 @@ def get_video_url(video_id):
         url = 'http://p-vp.autohome.com.cn/api/spi?mid=%s' % (video_id)
         response = urllib.request.urlopen(url)
         result_dict = json.loads(response.read())
-        video_url = result_dict['result'][
-            'mediainfos'][0]['copies'][0]['playurl']
+        copies = result_dict['result'][
+            'mediainfos'][0]['copies']
+
+        video_url = copies[len(copies) - 1]['playurl']
     except:
         video_url = None
     return video_url
