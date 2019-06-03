@@ -73,7 +73,7 @@ def ocr_ours(input_file):
     import requests
     import base64
 
-    url = 'http://10.27.214.177:8080/ocr'
+    url = 'http://10.27.214.67:8080/ocr'
     encodedZip = base64.b64encode(read_image(input_file))
     # print(encodedZip.decode())
     body = {

@@ -47,4 +47,9 @@ def videolist(filename):
 if __name__ == '__main__':
     print('main')
     # main(videolist('./data/video_list.txt'))
-    main(['D0D8A516FF2B215E'])
+    main(['E14DA7631F7A7E2A'])
+    # main([('E14DA7631F7A7E2A', 4139, )])
+    # | D6EBAAEB72C95C00 |    4139 |
+    # | 8033477CA2615B1D |    4701 |
+    # | E5439B207D7F475D |    4702 |
+    # main(['D6EBAAEB72C95C00', '8033477CA2615B1D', 'E5439B207D7F475D'])

@@ -74,9 +74,28 @@ def get_video_url(video_id):
     return video_url
 
 
+def get_video_url_300(video_id):
+    '''
+    利用video_id获取视频url
+    :param video_id:
+    :return:
+    '''
+    try:
+        video_url = {
+            '0E14D0DC053214FA-300': 'https://n6-pl-agv.autohome.com.cn/video-44/0A4648B7CEAD844D/2017-07-20/0E14D0DC053214FA-300.mp4',
+            'E14DA7631F7A7E2A-300': 'https://n5-pl-agv.autohome.com.cn/video-5/0A4648B7CEAD844D/2018-12-14/E14DA7631F7A7E2A-300.mp4',
+            'CA883F153CAF170B-300': 'https://n6-pl-agv.autohome.com.cn/video-46/0A4648B7CEAD844D/2017-12-22/CA883F153CAF170B-300.mp4',
+        }[video_id]
+
+    except:
+        video_url = None
+    return video_url
+
+
 def download_videos(video_list):
     video_files = []
     for vid in video_list:
+        # video_url = get_video_url(vid)
         video_url = get_video_url(vid)
         if video_url is None:
             print(vid, ' cannot get download url')

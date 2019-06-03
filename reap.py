@@ -4,6 +4,7 @@ from classifier.build import build
 from tokenizer import init
 from utils.text_similarity import tf_similarity
 from summary.extract import extract_summary
+from download import get_video_url
 # from keypoint.extract import segment
 
 
@@ -129,7 +130,8 @@ def segment2(timelines):
 
 def save(short_videos, vid):
     import pymysql
-
+    vvid = vid.split('/')[-1].split('.')[0]
+    video_url = get_video_url(vvid)
     # 打开数据库连接
     db = pymysql.connect("localhost", "root", "", "short_videos")
 
@@ -137,17 +139,18 @@ def save(short_videos, vid):
     cursor = db.cursor()
 
     # SQL 插入语句
-    sql = "INSERT INTO videos(url, \
-	         subject, content, source_video_id) \
-	         VALUES ('%s', '%s', '%s', '%s') ON DUPLICATE KEY UPDATE \
+    sql = "INSERT INTO videos(keyx, video_id, video_url, \
+	         subject, content, start_seconds, end_seconds) \
+	         VALUES ('%s', '%s', '%s', '%s', '%s', '%d', '%d') ON DUPLICATE KEY UPDATE \
 	         subject=VALUES(subject), content=VALUES(content)		\
 	         "
     for v in short_videos:
         try:
             # 执行sql语句
-            print(sql % (v['url'], v['subject'], v['content'], v['source']))
+            print(sql % (v['url'], vvid, video_url, v['subject'],
+                         v['content'], int(v['start']), int(v['end'])))
             cursor.execute(
-                sql % (v['url'], v['subject'], v['content'], v['source']))
+                sql % (v['url'], vvid, video_url, v['subject'], v['content'].replace("'", ""), int(v['start']), int(v['end'])))
             # 提交到数据库执行
             db.commit()
         except Error as e:
