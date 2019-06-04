@@ -110,28 +110,70 @@ def save(caption_file, contents):
             outfile.write(str(t) + '\t' + ''.join(s) + '\n')
     return caption_file
 
+from skimage.measure import compare_ssim
+import cv2
+
+
+class CompareImage():
+
+    def compare_image(self, path_image1, path_image2):
+
+        imageA = cv2.imread(path_image1)
+        imageB = cv2.imread(path_image2)
+
+        grayA = cv2.cvtColor(imageA, cv2.COLOR_BGR2GRAY)
+        grayB = cv2.cvtColor(imageB, cv2.COLOR_BGR2GRAY)
+
+        (score, diff) = compare_ssim(grayA, grayB, full=True)
+        # print("SSIM: {}".format(score))
+        return score
+
 
 def process(frames_path, output_path):
     if os.path.exists(output_path):
         return output_path
+    compare_image = CompareImage()
+
     seconds = []
     sentences = []
-    for image_file in os.listdir(frames_path):
+
+    last_image = ''
+    last_sentence = ''
+    # print(frames_path)
+    frames = [int(x.split('.')[0]) for x in os.listdir(frames_path)]
+    frames.sort()
+    for frame_index in frames:
+        image_file = str(frame_index) + '.jpg'
+        # print(image_file)
+        if frame_index > 1:
+            score = compare_image.compare_image(
+                frames_path + '/' + image_file, frames_path + '/' + last_image)
+            if score > 0.8:
+                # print(frames_path + '/' + image_file,
+                      # frames_path + '/' + last_image)
+                sentences.append(last_sentence)
+                # last_image = image_file
+                continue
+        last_image = image_file
         try:
             sentence = ocr_ours(frames_path + '/' + image_file)
             # sentence = ocr(frames_path + '/' + image_file)
             seconds.append(int(image_file.split(".")[0]))
             sentences.append(sentence)
+            last_sentence = sentence
         except Exception as e:
             print(image_file, e)
             seconds.append(int(image_file.split(".")[0]))
             sentences.append('')
+            last_sentence = ''
         finally:
             pass
+        # print(sentences)
 
     # seconds, sentences = for_test_ocr(output_path)
 
     contents = sorted(zip(seconds, sentences), key=lambda x: x[0])
+    print(contents)
     return save(output_path, contents)
 
 

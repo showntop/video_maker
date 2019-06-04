@@ -15,8 +15,11 @@ def extract_frames(video_file, output_path, n=1):
     if not output_path.endswith('/'):
         output_path = output_path + '/'
 
-    ffmpeg_cmd = "ffmpeg  -i  " + video_file + " -r " + \
-        str(n) + " -f image2 " + output_path + "%d.jpg"
+    # ffmpeg_cmd = "ffmpeg  -i  " + video_file + " -r " + \
+    #     str(n) + " -f image2 " + output_path + "%d.jpg"
+    ffmpeg_cmd = "ffmpeg  -i  " + video_file + \
+        " -f image2 " + output_path + "%d.jpg"
+
     os.system(ffmpeg_cmd)
 
     # 截取每张图片的有效区域

@@ -188,14 +188,15 @@ def process(subjects_file, video_file, output_path, keypoints_file):
 
     for seg in segments:
         i = seg['start']
-        if i - 2 < 0:
-            i = 0
-        else:
-            i = i - 2
+        # if i - 2 < 0:
+        #     i = 0
+        # else:
+        #     i = i - 2
         j = seg['end']
 
         seg['source'] = video_file
         seg['start'] = i
+        seg['end'] = j
         seg['duration'] = j - i
         seg['content'] = ''.join(merge_text(
             i, j, dict(zip(seconds_list, setences_list))))
@@ -203,19 +204,34 @@ def process(subjects_file, video_file, output_path, keypoints_file):
             str(seg['start']) + "_" + str(seg['duration']) + '.mp4'
 
     print(segments)
+    vvid = video_file.split('/')[-1].split('.')[0]
 
-    ffmpeg_cmd_t = 'ffmpeg -y -loglevel repeat+level+warning -ss %s -t %s -i %s -vcodec copy -acodec copy %s'
+    import ffmpeg
     for seg in segments:
-        m, s = divmod(seg['start'], 60)
-        h, m = divmod(m, 60)
-        start = "{:0>2}:{:0>2}:{:0>2}".format(h, m, s)
-        m, s = divmod(seg['duration'], 60)
-        h, m = divmod(m, 60)
-        duration = "{:02d}:{:02d}:{:02d}".format(h, m, s)
-        out_video_file = seg['url']
-        exec_cmd = ffmpeg_cmd_t % (start, duration, video_file, out_video_file)
-        # print(exec_cmd)
-        os.system(exec_cmd)
+        # print(seg['start'], seg['end'])
+        # ffmpeg.input(video_file).trim(start_frame=0, end_frame=seg[
+        #     'end']).output(seg['url']).run()
+        # ffmpeg
+        #     .input('./data/frames/' + vvid + '/*.jpg', pattern_type='glob', framerate=25)
+        #     .output('movie.mp4')
+        #     .run()
+        # ffmpeg_cmd_t = 'ffmpeg -y -loglevel repeat+level+warning -ss %s -t %s -i %s -vcodec copy -acodec copy %s'
+        ffmpeg_cmd_t = 'ffmpeg -ss %s -t %s -i %s -vcodec copy -acodec copy %s'
+        for seg in segments:
+            iss, ms = divmod(seg['start'], 25)
+            m, s = divmod(iss, 60)
+            h, m = divmod(m, 60)
+            start = "{:0>2}:{:0>2}:{:0>2}.{:0>3}".format(h, m, s, ms)
+
+            iss, ms = divmod(seg['duration'], 25)
+            m, s = divmod(iss, 60)
+            h, m = divmod(m, 60)
+            duration = "{:02d}:{:02d}:{:02d}.{:03d}".format(h, m, s, ms)
+            out_video_file = seg['url']
+            exec_cmd = ffmpeg_cmd_t % (
+                start, duration, video_file, out_video_file)
+            print(exec_cmd)
+            os.system(exec_cmd)
     save(segments, video_file)
 
 
