@@ -1,6 +1,6 @@
 opencv_python==4.1.0.25
 baidu_aip==2.2.13.0
-numpy==1.16.2
+numpy==1.22.0
 scipy==1.2.1
 jieba
 pymysql
